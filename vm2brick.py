@@ -59,7 +59,6 @@ class GlusterVolume(object):
         # doesn't do anything, just here to help define the flow
         pass
 
-
     def query_placement(self, disk_path):
         if not self.mounted:
             self.connect_to_volume()
@@ -93,7 +92,7 @@ class Spinner(threading.Thread):
         while self.enabled:
             time.sleep(self.delay)
             sys.stdout.write("%s %s %s\n\r\x1b[A" % (self.symbols[self.ptr], self.msg, " "*20))
-            if self.ptr < ( len(self.symbols) - 1 ):
+            if self.ptr < (len(self.symbols) - 1):
                 self.ptr += 1
             else:
                 self.ptr = 0
@@ -102,6 +101,7 @@ class Spinner(threading.Thread):
         self.enabled = False
         self.join()
         sys.stdout.write(" ")
+
 
 class VMDisk(object):
 
@@ -151,8 +151,6 @@ def main():
         if args.debug:
             print "Fetching a list of disks attached to vm '%s'" % args.vm_name
 
-
-
         disks = api.disks.list(query='vm_names = "%s"' % args.vm_name)
 
         if disks:
@@ -162,7 +160,7 @@ def main():
 
             vm_name = args.vm_name
 
-            vm = api.vms.get(name = vm_name)
+            vm = api.vms.get(name=vm_name)
             active_host = vm.get_host()     # None or name
 
             vm_name += '(%s)' % vm.status.get_state()
@@ -190,7 +188,7 @@ def main():
             print "VM doesn't exist, or has no disks"
 
     except Exception, e:
-        print "Unexpected error: %s" % (e.message)
+        print "Unexpected error: %s" % e.message
 
     finally:
 
