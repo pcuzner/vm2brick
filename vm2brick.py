@@ -124,9 +124,10 @@ class VMDisk(object):
         return fmtd
 
 
-def display_results(vm_disks):
+def display_results(vm_name, vm_disks, active_host):
 
-    print "\nVM : %s\n" % args.vm_name
+    print "\nVM  : %s" % vm_name
+    print "Host: %s\n" % active_host
     for disk in vm_disks:
         print disk
 
@@ -149,13 +150,25 @@ def main():
         # try and get a list of the disks for the vm provided
         if args.debug:
             print "Fetching a list of disks attached to vm '%s'" % args.vm_name
+
+
+
         disks = api.disks.list(query='vm_names = "%s"' % args.vm_name)
 
         if disks:
             if args.debug:
                 print "got the vm disk list ok - %d" % len(disks)
-                print "fetching a list of glusterfs domains"
+                print "fetching vm details"
 
+            vm_name = args.vm_name
+
+            vm = api.vms.get(name = vm_name)
+            active_host = vm.get_host()     # None or name
+
+            vm_name += '(%s)' % vm.status.get_state()
+
+            if args.debug:
+                print "fetching a list of glusterfs domains"
             domains = api.storagedomains.list(query='type = "glusterfs"')
 
             for dom in domains:
@@ -176,9 +189,8 @@ def main():
         else:
             print "VM doesn't exist, or has no disks"
 
-    except:
-        print "blew up"
-        return
+    except Exception, e:
+        print "Unexpected error: %s" % (e.message)
 
     finally:
 
@@ -190,8 +202,8 @@ def main():
         if not args.debug:
             spinner.stop()
 
-
-        display_results(vm_disks)
+        if disks:
+            display_results(vm_name, vm_disks, active_host)
 
 
 if __name__ == "__main__":
