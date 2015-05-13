@@ -52,9 +52,11 @@ And a run to show how the data is presented;
 
     python vm2brick.py --vm fio-clone-1  
 
-    VM : fio-clone-1    
-    Disk Name                     	Brick Path  
-    guest1_Disk1                  	server1.lab.net:/glusterfs/brick1/vmdomain
-                                  	server2.lab.net:/glusterfs/brick1/vmdomain  
-                                  	server3.lab.net:/glusterfs/brick1/vmdomain  
+    VM  : fio-clone-1(down)
+    Host: None
+    
+    Disk Name                     	Brick Path
+    rh7-guest1_Disk1              	gprfc087.sbu.lab.eng.bos.redhat.com:/glusterfs/brick1/vmdomain
+                                  	gprfc086.sbu.lab.eng.bos.redhat.com:/glusterfs/brick1/vmdomain
+                                  	gprfc085.sbu.lab.eng.bos.redhat.com:/glusterfs/brick1/vmdomain  
 
