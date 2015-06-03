@@ -118,9 +118,15 @@ class VMDisk(object):
 
     def __str__(self):
         fmtd = '%-30s\tBrick Path\n' % 'Disk Name'
-        fmtd += "%-30s\t%s\n" % (self.disk_name, self.brick_path[0])
-        for replica in self.brick_path[1:]:
-            fmtd += "%s\t%s\n" % (" "*30, replica)
+        if len(self.brick_path) > 0:
+            brick_paths = sorted(self.brick_path)
+            fmtd += "%-30s\t%s\n" % (self.disk_name, brick_paths[0])
+            for replica in brick_paths[1:]:
+                fmtd += "%s\t%s\n" % (" "*30, replica)
+        else:
+            # brick path info is missing for this vdisk?
+            fmtd += "%-30s\t%s\n" % (self.disk_name, 'vdisk file is missing or path information is corrupt')
+
         return fmtd
 
 
@@ -128,7 +134,7 @@ def display_results(vm_name, vm_disks, active_host):
 
     print "\nVM  : %s" % vm_name
     print "Host: %s\n" % active_host
-    for disk in vm_disks:
+    for disk in sorted(vm_disks):
         print disk
 
 
@@ -161,7 +167,10 @@ def main():
             vm_name = args.vm_name
 
             vm = api.vms.get(name=vm_name)
-            active_host = vm.get_host()     # None or name
+            if vm.status == 'up':
+                active_host = api.hosts.get(id=vm.get_host().get_id()).get_name()
+            else:
+                active_host = 'N/A'
 
             vm_name += '(%s)' % vm.status.get_state()
 
