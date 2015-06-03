@@ -125,7 +125,7 @@ class VMDisk(object):
                 fmtd += "%s\t%s\n" % (" "*30, replica)
         else:
             # brick path info is missing for this vdisk?
-            fmtd += "%-30s\t%s\n" % (self.disk_name, 'vdisk file is missing or path information is corrupt')
+            fmtd += "%-30s\t%s\n" % (self.disk_name, 'vdisk file is missing or path information is corrupt/invalid')
 
         return fmtd
 
@@ -167,7 +167,7 @@ def main():
             vm_name = args.vm_name
 
             vm = api.vms.get(name=vm_name)
-            if vm.status == 'up':
+            if vm.status.state == 'up':
                 active_host = api.hosts.get(id=vm.get_host().get_id()).get_name()
             else:
                 active_host = 'N/A'
