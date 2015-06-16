@@ -115,17 +115,23 @@ class VMDisk(object):
         sd_list = sd_group.get_storage_domain()
         self.storage_domain_id = sd_list[0].get_id()
         self.brick_path = []
+        self.data_available = True
 
     def __str__(self):
         fmtd = '%-30s\tBrick Path\n' % 'Disk Name'
-        if len(self.brick_path) > 0:
-            brick_paths = sorted(self.brick_path)
-            fmtd += "%-30s\t%s\n" % (self.disk_name, brick_paths[0])
-            for replica in brick_paths[1:]:
-                fmtd += "%s\t%s\n" % (" "*30, replica)
+        if self.data_available:
+            if len(self.brick_path) > 0:
+                brick_paths = sorted(self.brick_path)
+                fmtd += "%-30s\t%s\n" % (self.disk_name, brick_paths[0])
+                for replica in brick_paths[1:]:
+                    fmtd += "%s\t%s\n" % (" "*30, replica)
+            else:
+                # brick path info is missing for this vdisk?
+                fmtd += "%-30s\t%s\n" % (self.disk_name,
+                                         'vdisk file is missing or path information is corrupt/invalid')
         else:
-            # brick path info is missing for this vdisk?
-            fmtd += "%-30s\t%s\n" % (self.disk_name, 'vdisk file is missing or path information is corrupt/invalid')
+            fmtd += "%-30s\t%s\n" % (self.disk_name,
+                                     'Unable to access the volume with libgfapi - is SSL configured for this host?')
 
         return fmtd
 
@@ -188,11 +194,15 @@ def main():
                 vm_disk = VMDisk(disk)
                 if vm_disk.storage_domain_id in gfs_domain:
                     gfs_volume = gfs_domain[vm_disk.storage_domain_id]
-                    disk_path = '/'.join([vm_disk.vm_id, vm_disk.disk_id])
-                    vm_disk.brick_path = gfs_volume.query_placement(disk_path)
+                    if gfs_volume.mounted:
+
+                        disk_path = '/'.join([vm_disk.vm_id, vm_disk.disk_id])
+                        vm_disk.brick_path = gfs_volume.query_placement(disk_path)
+
+                    else:
+                        vm_disk.data_available = False
 
                     vm_disks.append(vm_disk)
-
         else:
             print "VM doesn't exist, or has no disks"
 
